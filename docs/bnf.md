@@ -1,0 +1,3 @@
+stmt := NUMBER SEMICOLON
+NUMBER := ""
+SEMICOLON := ";"

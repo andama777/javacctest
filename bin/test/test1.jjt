@@ -1,0 +1,122 @@
+/** オプション */
+options {
+    /* parserをfor文などで繰り返し使うならfalseにする */
+    STATIC = false;
+    UNICODE_INPUT = false; // 日本語を解析したかったらtrue
+}
+
+/** Parserクラスの定義 */
+PARSER_BEGIN(MyParser)
+package parser;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import test.BNF.*;
+
+public class MyParser {
+    /* ここに，普通のJavaクラスのようにメソッドを定義できるっぽい */
+	public static void write(String str) {
+	  System.out.println(str);
+	}
+
+	public void write(ArrayList<String> codes) {
+	  for(Iterator it = codes.iterator(); it.hasNext();) {
+	    System.out.println(it.next());
+	  }
+	}
+
+//	public void write(ArrayList<Token> tokens) {
+//	  for(Iterator it = tokens.iterator(); it.hasNext();) {
+//	    System.out.println(it.next().toString());
+//	  }
+//	}
+}
+
+PARSER_END(MyParser)
+/** ここまでがParserクラスの定義 */
+/** 以下は文法の定義 */
+
+/** 無視する文字を定義 */
+SKIP:
+{
+    " " | "\r" | "\t" | "\n"
+}
+
+/** 出現するトークンを定義 */
+TOKEN:
+{
+        <NUMBER: (["0"-"9"])+>				|
+        <MAIN:	"Main" >					|
+        <VOID:	"void" >					|
+        <ADDOPE:	("+" | "-") >			|
+        <MULOPE:	("*" | "/") >			
+}
+
+/** Parserの実行
+ *  このメソッドをMain.javaから呼び出す
+ */
+
+void program():
+{
+  write("Program start:\t");
+}{
+  	(stmt())* <EOF> {
+    	//System.out.println("Clear Registers:\t");
+    }
+}
+
+void stmt():
+{}
+{
+  expr4() ";"
+}
+
+void expr4():
+{
+  	Expr4 expr;
+  	ArrayList<String> codes = new ArrayList<String>();
+	ArrayList<Token> tokens = new ArrayList<Token>();
+    Token t;
+}{
+  // add_expr ::= Number() (AddOperator() Number())+
+  	t = Number() {tokens.add(t); }(
+  	  t = AddOperator() { tokens.add(t); }
+  	  t = Number() { tokens.add(t); }
+  	  )+{
+  	    	//write(tokens);
+
+	  	   	expr = new Expr1(tokens);
+	  	   	codes = expr.genCode();
+	  	   	write(codes);
+  	   	
+  	  
+//  	  switch(ope.image) {
+//  	    case "+":
+//  	    	write("\tADD R1, R0;");
+//  	    	break;
+//  	    case "-":
+//  	    	write("\tSUB R0, R1;");
+//  	    	break;
+//  	    default:
+//  	    	write("\tNOP\t\t;");
+//  	  }
+  	}
+}
+
+Token Number():{
+  Token number;
+}{
+  number = <NUMBER> {
+	//write("\tMOV #" + number.image + ", R0;");
+	return number;
+  }
+}
+
+Token AddOperator():{
+  Token operator;
+}{
+  operator = <ADDOPE> {
+    return operator;
+  }
+}

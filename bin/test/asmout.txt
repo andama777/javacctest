@@ -1,0 +1,10 @@
+Program start:	
+;;; 123
+;;; +
+;;; 666
+	MOV #123, (R6)+ ;;;;;; push left-num
+	MOV #666, (R6)+ ;;; push right-num
+	MOV -(R6), R0 ;;; pop left-num
+	MOV -(R6), R1 ;;; pop right-num
+	ADD R1, R0 ;;;
+	MOV R0, (R6)+ ;;; push result
